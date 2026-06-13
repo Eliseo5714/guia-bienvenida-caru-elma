@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Bienvenida – Apartamentos Elma</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --cream:#FAF7F2;--sand:#E8DFD0;--terra:#C4704A;
+  --ocean:#2B6B8A;--deep:#1C2B35;--gold:#C9A96E;
+  --white:#FFFFFF;--txt:#2A2A2A;--txt-lt:#666;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--txt);overflow-x:hidden;}
+
+/* HERO */
+.hero-bg{background:linear-gradient(135deg,#1C2B35 0%,#2B6B8A 55%,#4A8FA8 100%);padding:60px 40px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero-bg::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");}
+.wave-pill{display:inline-block;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);color:rgba(255,255,255,.88);font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;padding:8px 26px;border-radius:40px;margin-bottom:24px;}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(42px,8vw,80px);font-weight:900;color:#fff;line-height:1;margin-bottom:6px;}
+.hero-sub{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3vw,26px);font-weight:300;font-style:italic;color:rgba(255,255,255,.68);}
+.hero-addr{background:var(--white);padding:22px 40px;text-align:center;border-bottom:3px solid var(--sand);}
+.addr-pill{display:inline-flex;align-items:center;gap:14px;background:var(--cream);padding:13px 26px;border-radius:10px;border:1px solid var(--sand);}
+.addr-dot{width:36px;height:36px;background:var(--terra);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;}
+.addr-lbl{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--terra);display:block;}
+.addr-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--deep);}
+.addr-str{font-size:13px;color:var(--txt-lt);margin-top:2px;}
+
+/* CITY SELECTOR — 3 big buttons */
+.city-selector{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;max-width:640px;margin:0 auto;position:sticky;top:0;z-index:300;gap:2px;background:var(--deep);}
+.city-btn{cursor:pointer;border:none;padding:0;position:relative;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.city-btn .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.42);transition:filter .3s;}
+.city-btn.active .bg,.city-btn:hover .bg{filter:brightness(.28);}
+.city-btn .ov{position:relative;z-index:2;text-align:center;padding:12px;border-bottom:4px solid transparent;transition:border-color .25s;}
+.city-btn.active .ov{border-bottom-color:var(--terra);}
+.ci{font-size:24px;display:block;margin-bottom:4px;}
+.cl{font-family:'Playfair Display',serif;font-size:clamp(15px,2.4vw,24px);font-weight:700;color:#000;display:block;text-shadow:0 0 6px rgba(255,255,255,.9),0 0 12px rgba(255,255,255,.6);}
+.cs{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,.75);margin-top:3px;display:block;}
+#btn-cdf .bg{background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=70');}
+#btn-bcn .bg{background-image:url('https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=70');}
+#btn-tr .bg{background-image:url('https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=800&q=70');}
+#btn-normas .bg{background-image:url('https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=70');}
+
+/* MAIN CONTENT AREA — only one panel visible at a time */
+#content-cdf, #content-bcn, #content-tr, #content-normas { display:none; }
+#content-cdf.active, #content-bcn.active, #content-tr.active, #content-normas.active { display:block; }
+
+/* SECONDARY TABS inside each city */
+.subnav-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;max-width:640px;margin:0 auto;}
+.sec-tabs{display:flex;flex-direction:column;background:var(--deep);position:sticky;top:0;z-index:200;overflow:hidden;}
+.sec-tab{cursor:pointer;border:none;background:none;width:100%;padding:14px 8px;color:#ffffff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-left:3px solid transparent;transition:all .2s;white-space:normal;text-align:left;overflow-wrap:break-word;box-sizing:border-box;}
+#tabs-cdf{grid-column:1;min-width:0;}
+#tabs-bcn{grid-column:2;min-width:0;}
+.sec-tab:hover{color:#fff;}
+.sec-tab.active{color:#fff;border-left-color:var(--terra);background:rgba(255,255,255,.08);}
+
+/* SUBSECTIONS — only one visible at a time within a city */
+.subsec{display:none;padding:60px 0;}
+.subsec.active{display:block;}
+.subsec.bg-white{background:var(--white);}
+
+/* CONTAINER */
+.container{max-width:1220px;margin:0 auto;padding:0 40px;}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:flex-end;gap:20px;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid var(--sand);}
+.sec-num{font-family:'Playfair Display',serif;font-size:68px;font-weight:900;color:var(--sand);line-height:1;flex-shrink:0;}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--terra);display:block;margin-bottom:3px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--deep);line-height:1.1;}
+.sec-desc{font-size:14px;color:var(--txt-lt);margin-top:7px;line-height:1.6;max-width:520px;}
+
+/* MAP */
+.map-wrap{border-radius:14px;overflow:hidden;margin-bottom:44px;box-shadow:0 8px 36px rgba(0,0,0,.12);border:2px solid var(--sand);}
+
+/* CARDS */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:22px;}
+.card{background:var(--white);border-radius:14px;border:1px solid var(--sand);transition:transform .2s,box-shadow .2s;overflow:hidden;}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 44px rgba(0,0,0,.10);}
+.card-head{display:flex;align-items:flex-start;gap:13px;padding:18px 18px 0;}
+.badge{width:38px;height:38px;border-radius:50%;background:var(--terra);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;font-weight:900;flex-shrink:0;}
+.badge.blue{background:var(--ocean);}
+.card-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--deep);line-height:1.2;margin-top:4px;}
+.card-body{padding:13px 18px 18px;}
+.card-desc{font-size:13px;line-height:1.65;color:var(--txt-lt);margin-bottom:13px;}
+.card-meta{border-top:1px solid var(--sand);padding-top:12px;display:flex;flex-direction:column;gap:6px;}
+.meta-row{display:flex;align-items:center;gap:8px;font-size:12px;}
+.mic{width:16px;text-align:center;color:var(--terra);flex-shrink:0;}
+.mic.blue{color:var(--ocean);}
+.mlink{color:var(--ocean);text-decoration:none;font-weight:500;}
+.mlink:hover{text-decoration:underline;}
+
+/* TRANSPORT */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
+.tcard{background:var(--white);border-radius:14px;padding:26px;border:1px solid var(--sand);border-top:5px solid var(--ocean);}
+.tcard.bus{border-top-color:var(--terra);}
+.tcard.car{border-top-color:var(--gold);}
+.tcard.taxi{border-top-color:#7C5CBF;}
+.tico{font-size:30px;margin-bottom:10px;}
+.ttitle{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--deep);margin-bottom:5px;}
+.tbadge{display:inline-block;background:var(--ocean);color:#fff;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;margin-bottom:14px;}
+.tcard.bus .tbadge{background:var(--terra);}
+.tcard.car .tbadge{background:var(--gold);color:var(--deep);}
+.tcard.taxi .tbadge{background:#7C5CBF;}
+.tsteps{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.tsteps li{display:flex;gap:9px;font-size:13px;line-height:1.5;color:var(--txt-lt);}
+.sn{width:20px;height:20px;background:var(--sand);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--deep);flex-shrink:0;margin-top:2px;}
+.tback{margin-top:14px;padding-top:14px;border-top:1px dashed var(--sand);}
+.tback-lbl{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--terra);margin-bottom:7px;display:block;}
+
+/* NORMAS */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+.ritem{display:flex;gap:12px;background:var(--white);padding:16px;border-radius:12px;border-left:4px solid var(--terra);}
+.ric{font-size:19px;flex-shrink:0;margin-top:1px;}
+.rtxt{font-size:13px;line-height:1.6;color:var(--txt);}
+
+/* FOOTER */
+footer{background:var(--deep);padding:48px 40px;text-align:center;}
+.ftl{font-family:'Playfair Display',serif;font-size:27px;font-weight:900;color:#fff;margin-bottom:5px;}
+.fts{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:rgba(255,255,255,.4);}
+.ftd{width:50px;height:2px;background:var(--terra);margin:18px auto;}
+footer p{color:rgba(255,255,255,.38);font-size:12px;}
+
+@media(max-width:768px){
+  .container{padding:0 16px;}
+  .grid,.tgrid,.rgrid{grid-template-columns:1fr;}
+  .city-selector{max-width:100%;}
+  .subnav-row{max-width:100%;}
+  .city-btn{aspect-ratio:1/1;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header>
+  <div class="hero-bg">
+    <div class="wave-pill">✦ Guía de Bienvenida ✦</div>
+    <h1 class="hero-title">Apartamentos<br>Elma</h1>
+    <p class="hero-sub">Castelldefels · Barcelona</p>
+  </div>
+  <div class="hero-addr">
+    <div class="addr-pill">
+      <div class="addr-dot">📍</div>
+      <div>
+        <span class="addr-lbl">Nuestra Dirección</span>
+        <div class="addr-name">Apartamentos Elma</div>
+        <div class="addr-str">Carrer de la Coruña, 26 · Castelldefels, Barcelona</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- CITY SELECTOR -->
+<div class="city-selector">
+  <button class="city-btn active" id="btn-cdf" onclick="showCity('cdf')">
+    <div class="bg"></div>
+    <div class="ov"><span class="ci">🏖</span><span class="cl">Castelldefels</span></div>
+  </button>
+  <button class="city-btn" id="btn-bcn" onclick="showCity('bcn')">
+    <div class="bg"></div>
+    <div class="ov"><span class="ci">🏙</span><span class="cl">Barcelona</span></div>
+  </button>
+  <button class="city-btn" id="btn-tr" onclick="showCity('tr')">
+    <div class="bg"></div>
+    <div class="ov"><span class="ci">🚆</span><span class="cl">Transporte</span></div>
+  </button>
+  <button class="city-btn" id="btn-normas" onclick="showCity('normas')">
+    <div class="bg"></div>
+    <div class="ov"><span class="ci">📋</span><span class="cl">Normas</span></div>
+  </button>
+</div>
+
+<!-- SUB-NAV: dos columnas, una bajo Castelldefels y otra bajo Barcelona -->
+<div class="subnav-row">
+  <div class="sec-tabs" id="tabs-cdf">
+    <button class="sec-tab active" onclick="showSub('cdf','atr',this)">🏛 Atracciones</button>
+    <button class="sec-tab" onclick="showSub('cdf','act',this)">🏄 Actividades</button>
+    <button class="sec-tab" onclick="showSub('cdf','gas',this)">🍽 Gastronomía</button>
+  </div>
+  <div class="sec-tabs" id="tabs-bcn">
+    <button class="sec-tab active" onclick="showSub('bcn','atr',this)">🏛 Atracciones</button>
+    <button class="sec-tab" onclick="showSub('bcn','act',this)">🎭 Actividades</button>
+    <button class="sec-tab" onclick="showSub('bcn','gas',this)">🍽 Gastronomía</button>
+  </div>
+</div>
+
+<!-- =====================================================================
+     CASTELLDEFELS
+===================================================================== -->
+<div id="content-cdf" class="active">
+
+  <!-- CDF: ATRACCIONES -->
+  <div class="subsec active" id="cdf-atr">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">01</div>
+        <div><span class="eyebrow">Castelldefels · Descubre</span><h2 class="sec-title">Atracciones</h2><p class="sec-desc">Desde el Castillo medieval hasta el Canal Olímpic, Castelldefels tiene mucho que ofrecer.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-cdf-atr" style="height:420px;width:100%;"></div></div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-head"><div class="badge">1</div><div class="card-name">Castillo de Castelldefels</div></div>
+          <div class="card-body"><p class="card-desc">Fortaleza del siglo XVI que domina el paisaje con vistas panorámicas al mar y a la montaña. Alberga el Museu del Castell con exposiciones de historia medieval. Paseos guiados disponibles los fines de semana.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Plaça de l'Església, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">2</div><div class="card-name">Canal Olímpic de Catalunya</div></div>
+          <div class="card-body"><p class="card-desc">Instalación construida para los JJ.OO. de 1992. Ofrece kayak, piragüismo, esquí acuático, remo y alquiler de bicicletas. Además cuenta con un campo de golf en modalidad Pitch & Putt accesible para toda la familia. Uno de los mejores centros deportivos del sur de Europa, con escuelas y alquiler de equipos para todos los niveles.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://canalolimpic.cat" target="_blank">canalolimpic.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 36 28 96</span></div><div class="meta-row"><span class="mic">📍</span><span>Av. Canal Olímpic, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">3</div><div class="card-name">Monestir Budista Sakya Tashi Ling</div></div>
+          <div class="card-body"><p class="card-desc">Espectacular monasterio budista enclavado en el Parque Natural del Garraf. Único en Europa, con estupas, jardines zen y salones de meditación. Visitas guiadas y retiros espirituales disponibles.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://monestirsakya.org" target="_blank">monestirsakya.org</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 37 22 11</span></div><div class="meta-row"><span class="mic">📍</span><span>Garraf, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">4</div><div class="card-name">Parque Natural del Garraf</div></div>
+          <div class="card-body"><p class="card-desc">12.000 ha de vegetación mediterránea, masías centenarias y paisajes kársticos. Ideal para senderismo, ciclismo de montaña y observación de aves. Rutas que llevan hasta calas vírgenes del litoral.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://parcs.diba.cat/garraf" target="_blank">parcs.diba.cat/garraf</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 938 64 03 82</span></div><div class="meta-row"><span class="mic">📍</span><span>Parque Natural del Garraf</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">5</div><div class="card-name">Port Ginesta – Náutica y Calas</div></div>
+          <div class="card-body"><p class="card-desc">El mayor puerto deportivo de Cataluña con más de 1.200 amarres. Parten excursiones hacia las calas naturales del Garraf: Cala Ginesta, Cala Bou y Cala Morisca. Zona de paseo muy agradable al atardecer.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://portginesta.com" target="_blank">portginesta.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 64 60 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Passeig Marítim de les Botigues, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">6</div><div class="card-name">Paseo Marítimo y Playas</div></div>
+          <div class="card-body"><p class="card-desc">Más de 5 km de playa de arena fina y aguas tranquilas del Mediterráneo. El paseo marítimo está flanqueado de restaurantes, chiringuitos y bares. Perfecta para el baño y los atardeceres más espectaculares de la costa.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">7</div><div class="card-name">Llac de Castelldefels</div></div>
+          <div class="card-body"><p class="card-desc">Lago artificial rodeado de parques y zonas verdes. Popular para footing, picnics y paseos en familia. En verano es un oasis de frescor a pocos minutos de la playa. Acceso libre y gratuito todo el año.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Interior de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">8</div><div class="card-name">Delta del Llobregat</div></div>
+          <div class="card-body"><p class="card-desc">Espacio natural protegido a 10 minutos. Paraíso para la observación de aves (más de 300 especies), piragüismo y senderismo por lagunas y arrozales. Un contraste verde perfecto con la animación de la playa.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://parcsnaturals.gencat.cat" target="_blank">parcsnaturals.gencat.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 54 02 50</span></div><div class="meta-row"><span class="mic">📍</span><span>El Prat de Llobregat</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">9</div><div class="card-name">Torre Barona</div></div>
+          <div class="card-body"><p class="card-desc">Torre de vigilancia histórica del siglo XVI en Gavà, muy cerca de Castelldefels. Vistas panorámicas espectaculares sobre el mar y el Garraf. Un enclave poco conocido que merece una visita a pie o en bicicleta.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Gavà, junto a Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">10</div><div class="card-name">Centro Comercial Nervion Blau</div></div>
+          <div class="card-body"><p class="card-desc">Gran centro comercial con más de 100 tiendas, supermercados, restaurantes y cines multiplex. Abierto todos los días del año. A pocos minutos en transporte público desde los apartamentos.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://nervionblau.com" target="_blank">nervionblau.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 96 00</span></div><div class="meta-row"><span class="mic">📍</span><span>El Prat de Llobregat</span></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CDF: ACTIVIDADES -->
+  <div class="subsec" id="cdf-act">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">02</div>
+        <div><span class="eyebrow">Castelldefels · Aventura</span><h2 class="sec-title">Actividades</h2><p class="sec-desc">Surf, kayak, kitesurf, senderismo y mucho más en la costa y el parque natural.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-cdf-act" style="height:420px;width:100%;"></div></div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-head"><div class="badge">1</div><div class="card-name">CAIAC.CAT – Kayak y Paddle Surf</div></div>
+          <div class="card-body"><p class="card-desc">Escuela de kayak de mar y paddle surf en Port Ginesta. Cursos nivel 1 y 2, alquiler por horas, excursiones a Cala Ginesta (2h), Cala Bou (3h) y Cala Morisca (3h). Salidas de luna llena y sunset. Desde 20 €/h. Técnicos TD2.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://caiac.cat" target="_blank">caiac.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 657 581 770</span></div><div class="meta-row"><span class="mic">📍</span><span>Passeig Marítim de les Botigues, Port Ginesta</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">2</div><div class="card-name">Escola Catalana de Surf</div></div>
+          <div class="card-body"><p class="card-desc">Escuela oficial de surf de Castelldefels. Clases para todos los niveles, SUP, Big SUP para grupos y alquiler de material. Monitores certificados. Excursiones en SUP por la costa del Garraf y Cala Ginesta.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://escolacatalanadsurf.com" target="_blank">escolacatalanadsurf.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 654 028 099</span></div><div class="meta-row"><span class="mic">📍</span><span>Platja de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">3</div><div class="card-name">Kitesurf en Playa Baixador</div></div>
+          <div class="card-body"><p class="card-desc">Una de las mejores zonas de kitesurf de Cataluña gracias al viento constante del norte. Varias escuelas ofrecen clases IKO y alquiler de equipos. Zona señalizada para máxima seguridad.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Sector sur Platja de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">4</div><div class="card-name">Senderismo por el Garraf</div></div>
+          <div class="card-body"><p class="card-desc">Red de senderos que conecta Castelldefels con el Parque Natural del Garraf. La Muntanyeta de Sant Pere ofrece vistas espectaculares al delta y al mar. Rutas de 2 a 6 horas señalizadas para toda la familia.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://parcs.diba.cat/garraf" target="_blank">parcs.diba.cat/garraf</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 938 64 03 82</span></div><div class="meta-row"><span class="mic">📍</span><span>Castelldefels – Garraf</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">5</div><div class="card-name">Excursiones en Barco a las Calas</div></div>
+          <div class="card-body"><p class="card-desc">Excursiones en catamarán y velero desde Port Ginesta hacia las calas vírgenes del Garraf con snorkel y bebida a bordo. Duración 2-4 horas. También alquiler sin patrón. Reserva imprescindible en verano.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://portginesta.com" target="_blank">portginesta.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 64 60 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Port Ginesta, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">6</div><div class="card-name">Ciclismo por el Paseo Marítimo</div></div>
+          <div class="card-body"><p class="card-desc">Carril bici de más de 5 km bordeando la playa hasta el Delta del Llobregat. Alquila bici o patines en los puntos de la zona. También hay rutas de BTT por el Parque del Garraf para los más atrevidos.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">7</div><div class="card-name">Pádel y Tenis</div></div>
+          <div class="card-body"><p class="card-desc">Varios clubes con pistas al aire libre e indoor. Alquiler por horas, clases con monitor y torneos abiertos. Instalaciones municipales y privadas disponibles en Castelldefels.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 36 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Diversos puntos, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">8</div><div class="card-name">Birdwatching en el Delta</div></div>
+          <div class="card-body"><p class="card-desc">Uno de los mejores lugares de observación de aves de la Península con más de 300 especies. El Parc Natural organiza rutas guiadas al amanecer para ver flamencos, martinetes y ardeidas.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://parcsnaturals.gencat.cat" target="_blank">parcsnaturals.gencat.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 54 02 50</span></div><div class="meta-row"><span class="mic">📍</span><span>Delta del Llobregat, El Prat</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">9</div><div class="card-name">Deportes de Playa</div></div>
+          <div class="card-body"><p class="card-desc">Pistas de voleibol y fútbol playa en la arena. En verano se organizan torneos abiertos, clases de yoga y pilates. La oficina de turismo del paseo marítimo tiene información sobre todas las actividades temporales.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Platja de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">10</div><div class="card-name">Windsurf y Vela Ligera</div></div>
+          <div class="card-body"><p class="card-desc">La bahía de Castelldefels es perfecta para windsurf y vela ligera gracias a los vientos estables del norte. Varias escuelas náuticas ofrecen cursos de iniciación y alquiler de equipos en aguas seguras.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 35 00 00</span></div><div class="meta-row"><span class="mic">📍</span><span>Platja de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">11</div><div class="card-name">Canal Olímpic – Alquiler de Canoas</div></div>
+          <div class="card-body"><p class="card-desc">El Canal Olímpic de Catalunya, construido para los JJ.OO. de 1992, ofrece alquiler de canoas y kayaks por horas para todos los niveles. Aguas tranquilas y controladas, perfectas para familias y principiantes. También organizan cursos de iniciación al piragüismo con monitores titulados. Y si te apetece algo diferente, el recinto cuenta además con un campo de golf en modalidad Pitch & Putt. Una experiencia deportiva completa a pocos minutos de los apartamentos.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://canalolimpic.cat" target="_blank">canalolimpic.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 36 28 96</span></div><div class="meta-row"><span class="mic">📍</span><span>Av. Canal Olímpic, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">12</div><div class="card-name">Canal Olímpic – Alquiler de Bicicletas</div></div>
+          <div class="card-body"><p class="card-desc">En el recinto del Canal Olímpic encontrarás puntos de alquiler de bicicletas para recorrer el entorno a tu ritmo. El carril bici bordea el canal y conecta con el paseo marítimo de Castelldefels y el Delta del Llobregat. Ideal para una mañana activa en familia o en pareja. También disponibles bicicletas eléctricas para rutas más largas.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://canalolimpic.cat" target="_blank">canalolimpic.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 36 28 96</span></div><div class="meta-row"><span class="mic">📍</span><span>Av. Canal Olímpic, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">13</div><div class="card-name">Canal Olímpic – Pitch & Putt</div></div>
+          <div class="card-body"><p class="card-desc">El recinto del Canal Olímpic alberga un campo de Pitch & Putt, la modalidad de golf más accesible y divertida para toda la familia. No hace falta experiencia previa ni equipo propio — todo el material se alquila en el recinto. Un campo bien cuidado con vistas al canal olímpico, perfecto para una tarde diferente en un entorno único.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://canalolimpic.cat" target="_blank">canalolimpic.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 936 36 28 96</span></div><div class="meta-row"><span class="mic">📍</span><span>Av. Canal Olímpic, Castelldefels</span></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CDF: GASTRONOMÍA -->
+  <div class="subsec bg-white" id="cdf-gas">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">03</div>
+        <div><span class="eyebrow">Castelldefels · Sabores</span><h2 class="sec-title">Gastronomía</h2><p class="sec-desc">Chiringuitos a pie de mar, parrillas argentinas, menús del día y cocina mediterránea con las mejores vistas.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-cdf-gas" style="height:420px;width:100%;"></div></div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">1</div><div class="card-name">Chiringuito Ananda</div></div>
+          <div class="card-body"><p class="card-desc">A pie de playa con ambiente relajado. Cocina mediterránea e internacional desde desayunos hasta cócteles al atardecer. Opciones vegetarianas y veganas. Favorito de residentes y turistas por su ubicación en primera línea.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://chiringuito-ananda.com" target="_blank">chiringuito-ananda.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 64 24 00</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Platja de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">2</div><div class="card-name">Casanova Beach Club (CBC)</div></div>
+          <div class="card-body"><p class="card-desc">Restaurante con terraza y acceso a piscina privada de día. Cocina mediterránea, paellas y mariscos. Por la noche se transforma en beach club con música. Abierto de 12:00 a 5:00 am en temporada alta.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://casanovabeachclub.com" target="_blank">casanovabeachclub.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 35 15 00</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">3</div><div class="card-name">Ushuaia – La Parrilla Argentina</div></div>
+          <div class="card-body"><p class="card-desc">El mejor asador argentino de la zona con carnes a la brasa y vinos de Mendoza. Especialistas en entraña, vacío y chorizo criollo. Raciones generosas. Reserva recomendada los fines de semana de verano.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 65 24 00</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">4</div><div class="card-name">Pizzas D'Herber</div></div>
+          <div class="card-body"><p class="card-desc">Pizzería artesanal con masa madre y horno de leña. Ingredientes frescos cada día. Ambiente familiar y precios asequibles. También pasta fresca y lasagnas. Delivery disponible en toda la zona costera.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 34 23 23</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">5</div><div class="card-name">Fosbury Café</div></div>
+          <div class="card-body"><p class="card-desc">Restaurante mediterráneo con terraza frente al mar. Ensaladas, bocadillos artesanales y brunch los fines de semana. Muy popular para desayunos tardíos de verano y almuerzos tranquilos con vistas al Mediterráneo.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 74 31 00</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">6</div><div class="card-name">Olave – Mariscos y Mediterráneo</div></div>
+          <div class="card-body"><p class="card-desc">Especialistas en mariscos frescos y arroces mediterráneos. La paella y el arroz negro son sus estrellas. Carta de vinos blancos del Penedès perfectamente maridados con el marisco gallego de temporada.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 65 00 30</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">7</div><div class="card-name">Pink Buddha – Asiático & Sushi</div></div>
+          <div class="card-body"><p class="card-desc">Restaurante asiático de fusión con cocina japonesa, tailandesa e india. Rolls de sushi, curris y bao rellenos. Ambiente colorido y moderno. Opciones vegetarianas y sin gluten. Reserva recomendada.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://pinkbuddha.es" target="_blank">pinkbuddha.es</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 65 00 50</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">8</div><div class="card-name">Café 2112 – Pastelería & Menú del Día</div></div>
+          <div class="card-body"><p class="card-desc">Café de barrio ideal para desayunos con pasteles caseros y café de especialidad. Al mediodía, uno de los mejores menús del día de Castelldefels: primero, segundo, postre, pan y bebida a precio muy ajustado.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 65 21 12</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Centro de Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">9</div><div class="card-name">Tiburón Beach & Nightclub</div></div>
+          <div class="card-body"><p class="card-desc">Restaurante de playa de día con cocina mediterránea y mariscos. Por la noche se transforma en uno de los locales de ocio más populares con terraza animada y música en directo. Reserva esencial los fines de semana.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 65 15 00</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig Marítim, Castelldefels</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">10</div><div class="card-name">Barba Rossa – American Style</div></div>
+          <div class="card-body"><p class="card-desc">Las mejores hamburguesas artesanales de Castelldefels, costillas BBQ y nachos. Ambiente informal ideal para cenas en familia. También bowls y ensaladas para opciones más ligeras. Terraza exterior en verano.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://castelldefelsbturisme.com" target="_blank">castelldefelsbturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 936 65 10 00</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Castelldefels</span></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content-cdf -->
+
+<!-- =====================================================================
+     BARCELONA
+===================================================================== -->
+<div id="content-bcn">
+
+  <!-- BCN: ATRACCIONES -->
+  <div class="subsec active" id="bcn-atr">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">01</div>
+        <div><span class="eyebrow">Barcelona · Cultura</span><h2 class="sec-title">Atracciones</h2><p class="sec-desc">De la Sagrada Família al Barrio Gótico, Barcelona nunca deja de sorprender.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-bcn-atr" style="height:420px;width:100%;"></div></div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-head"><div class="badge">1</div><div class="card-name">La Sagrada Família</div></div>
+          <div class="card-body"><p class="card-desc">La obra maestra inacabada de Gaudí. Fachadas de simbolismo religioso y nave interior que imita un bosque de piedra. Visita obligatoria — compra entradas con antelación. Patrimonio de la Humanidad UNESCO.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://sagradafamilia.org" target="_blank">sagradafamilia.org</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 08 04 14</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ de Mallorca, 401, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">2</div><div class="card-name">Park Güell</div></div>
+          <div class="card-body"><p class="card-desc">Parque diseñado por Gaudí entre 1900 y 1914. Mosaicos de trencadís, terraza con vistas a Barcelona y la famosa salamandra. La zona monumental requiere entrada. Mejor visitarlo al amanecer para evitar aglomeraciones.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://parkguell.barcelona" target="_blank">parkguell.barcelona</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 934 09 18 31</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ d'Olot, 5, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">3</div><div class="card-name">Casa Batlló</div></div>
+          <div class="card-body"><p class="card-desc">Joya del modernismo catalán en el Passeig de Gràcia. Fachada que evoca escamas de dragón con interior de experiencia inmersiva en realidad aumentada. Patrimonio UNESCO. Reserva online imprescindible.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://casabatllo.es" target="_blank">casabatllo.es</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 16 03 06</span></div><div class="meta-row"><span class="mic">📍</span><span>Passeig de Gràcia, 43, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">4</div><div class="card-name">Barrio Gótico</div></div>
+          <div class="card-body"><p class="card-desc">El corazón medieval de Barcelona con callejuelas empedradas, restos de murallas romanas y plazas encantadoras. La Catedral, el Pont del Bisbe y la Plaça Reial son imprescindibles. Vida nocturna plena.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 85 38 34</span></div><div class="meta-row"><span class="mic">📍</span><span>Barri Gòtic, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">5</div><div class="card-name">Bunkers del Carmel</div></div>
+          <div class="card-body"><p class="card-desc">Antigua batería antiaérea de la Guerra Civil en la cima del Turó de la Rovira. Las mejores vistas panorámicas de Barcelona de forma totalmente gratuita. A 262 m de altitud. Impresionante al atardecer.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 933 19 41 03</span></div><div class="meta-row"><span class="mic">📍</span><span>Turó de la Rovira, El Carmel, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">6</div><div class="card-name">Museu Picasso</div></div>
+          <div class="card-body"><p class="card-desc">Cinco palacios medievales del Born albergan más de 4.000 obras de Picasso. Incluye las famosas "Las Meninas". Acceso gratuito los jueves por la noche. Uno de los museos más visitados de Europa.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://museupicasso.bcn.cat" target="_blank">museupicasso.bcn.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 56 30 00</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ Montcada, 15-23, El Born, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">7</div><div class="card-name">Camp Nou – FC Barcelona</div></div>
+          <div class="card-body"><p class="card-desc">El estadio de fútbol más grande de Europa. El Museu del FC Barcelona es el más visitado de Cataluña. En remodelación para el Espai Barça; consulta disponibilidad de visitas en la web oficial.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://fcbarcelona.cat" target="_blank">fcbarcelona.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 934 96 36 00</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ d'Arístides Maillol, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">8</div><div class="card-name">Palau de la Música Catalana</div></div>
+          <div class="card-body"><p class="card-desc">Obra maestra del modernismo de Domènech i Montaner. La vidriera central de la sala de conciertos es de una belleza sobrecogedora. Visitas guiadas diarias y conciertos de música clásica, jazz y flamenc. Patrimonio UNESCO.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://palaumusica.cat" target="_blank">palaumusica.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 95 72 00</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ Palau de la Música, 4-6, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">9</div><div class="card-name">Montjuïc – Castell y Anella Olímpica</div></div>
+          <div class="card-body"><p class="card-desc">La montaña de Montjuïc alberga el Castell, la Anella Olímpica de 1992, el MNAC y la Fundació Joan Miró. Vistas incomparables sobre el puerto. Sube en teleférico desde el Paral·lel o a pie por los jardines.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 934 41 48 20</span></div><div class="meta-row"><span class="mic">📍</span><span>Montjuïc, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">10</div><div class="card-name">Las Ramblas y Mercat de la Boqueria</div></div>
+          <div class="card-body"><p class="card-desc">El paseo más famoso de Barcelona conecta la Plaça Catalunya con el Port Vell. El Mercat de la Boqueria tiene más de 300 puestos de producto fresco y bares de tapas. Imprescindible al menos una visita.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://boqueria.barcelona" target="_blank">boqueria.barcelona</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 933 18 25 84</span></div><div class="meta-row"><span class="mic">📍</span><span>La Rambla, 91, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">11</div><div class="card-name">La Barceloneta y Port Olímpic</div></div>
+          <div class="card-body"><p class="card-desc">El barrio marinero de Barcelona con la playa más popular de la ciudad. El Port Olímpic construido para los JJ.OO. de 1992 alberga restaurantes y bares frente al mar. Muy bien comunicado en tren desde Castelldefels.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 85 38 34</span></div><div class="meta-row"><span class="mic">📍</span><span>La Barceloneta, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">12</div><div class="card-name">La Pedrera – Casa Milà</div></div>
+          <div class="card-body"><p class="card-desc">Obra maestra de Antoni Gaudí construida entre 1906 y 1912 en el Passeig de Gràcia. Su fachada ondulada de piedra caliza y su azotea escultórica con guerreros y chimeneas son absolutamente únicas en el mundo. El interior muestra la visión de Gaudí aplicada a un edificio residencial. Por la noche se realizan visitas nocturnas con espectáculo en la azotea. Patrimonio de la Humanidad UNESCO.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://lapedrera.com" target="_blank">lapedrera.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 902 400 973</span></div><div class="meta-row"><span class="mic">📍</span><span>Passeig de Gràcia, 92, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">13</div><div class="card-name">Paseo por Las Ramblas</div></div>
+          <div class="card-body"><p class="card-desc">El paseo más emblemático de Barcelona, que recorre 1,2 km desde la Plaça de Catalunya hasta el monumento a Colón y el Port Vell. A lo largo del bulevar encontrarás floristas, artistas callejeros, terrazas, el Mercat de la Boqueria y acceso al Barrio Gótico. Muy animado a cualquier hora del día. Imprescindible pasearlo al menos una vez durante la estancia.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 85 38 34</span></div><div class="meta-row"><span class="mic">📍</span><span>La Rambla, Barcelona</span></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- BCN: ACTIVIDADES -->
+  <div class="subsec" id="bcn-act">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">02</div>
+        <div><span class="eyebrow">Barcelona · Experiencias</span><h2 class="sec-title">Actividades</h2><p class="sec-desc">Bus turístico, flamenco, velero al atardecer, bicicleta y mucho más para vivir Barcelona a fondo.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-bcn-act" style="height:420px;width:100%;"></div></div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-head"><div class="badge">1</div><div class="card-name">Bus Turístic de Barcelona</div></div>
+          <div class="card-body"><p class="card-desc">Recorre los principales puntos en dos rutas combinables (roja y verde). Audioguía en múltiples idiomas y descuentos en museos. Sale desde Plaça de Catalunya. Tarjeta de 1 o 2 días disponible online con descuento.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonabusturistic.cat" target="_blank">barcelonabusturistic.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 933 85 14 19</span></div><div class="meta-row"><span class="mic">📍</span><span>Plaça de Catalunya, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">2</div><div class="card-name">L'Aquàrium de Barcelona</div></div>
+          <div class="card-body"><p class="card-desc">Uno de los acuarios más importantes de Europa con un túnel submarino de 80 metros rodeado de tiburones y rayas. Más de 11.000 ejemplares de 450 especies. Ideal para familias con zona interactiva.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://aquariumbcn.com" target="_blank">aquariumbcn.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 21 74 74</span></div><div class="meta-row"><span class="mic">📍</span><span>Moll d'Espanya, Port Vell, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">3</div><div class="card-name">Tours en Bicicleta</div></div>
+          <div class="card-body"><p class="card-desc">Tours guiados por el casco histórico, el Born, la Barceloneta y el Eixample en varios idiomas. También rutas en e-bike. Duración 2-3 horas. Una forma divertida y ecológica de conocer la ciudad.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonacycletour.com" target="_blank">barcelonacycletour.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 68 21 05</span></div><div class="meta-row"><span class="mic">📍</span><span>Plaça de Sant Jaume, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">4</div><div class="card-name">Espectáculo de Flamenco</div></div>
+          <div class="card-body"><p class="card-desc">El Palacio del Flamenco y el Tarantos en la Plaça Reial son los más recomendados. Espectáculos de ~1 hora con bailaores y cantaores profesionales. Reserva previa muy recomendada en temporada alta.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://palaciodelflamenc.com" target="_blank">palaciodelflamenc.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 933 17 76 86</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ Balmes, 139, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">5</div><div class="card-name">Velero al Atardecer</div></div>
+          <div class="card-body"><p class="card-desc">Embárcate desde el Port Olímpic para contemplar el skyline de Barcelona desde el mar al atardecer. Salidas de 2 horas con bebidas a bordo. Ideal para parejas y grupos. Una perspectiva romántica de la ciudad.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonasailing.com" target="_blank">barcelonasailing.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 21 00 46</span></div><div class="meta-row"><span class="mic">📍</span><span>Port Olímpic, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">6</div><div class="card-name">Partido del FC Barcelona</div></div>
+          <div class="card-body"><p class="card-desc">Vivir un partido del Barça es una experiencia irrepetible. Compra las entradas en la web oficial con semanas de antelación, ya que los partidos se agotan muy rápidamente. Consulta el calendario de la temporada.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://fcbarcelona.cat/tickets" target="_blank">fcbarcelona.cat/tickets</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 934 96 36 00</span></div><div class="meta-row"><span class="mic">📍</span><span>C/ d'Arístides Maillol, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">7</div><div class="card-name">Fundació Joan Miró</div></div>
+          <div class="card-body"><p class="card-desc">La mayor colección del mundo de obras de Joan Miró en el edificio icónico de Sert en Montjuïc. Exposiciones temporales de artistas contemporáneos de primer nivel. Acceso combinado con el teleférico.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://fmirobcn.org" target="_blank">fmirobcn.org</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 934 43 94 70</span></div><div class="meta-row"><span class="mic">📍</span><span>Parc de Montjuïc, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">8</div><div class="card-name">Teleférico de Montjuïc</div></div>
+          <div class="card-body"><p class="card-desc">Conecta la estación del Paral·lel con la cima de Montjuïc con vistas aéreas sobre el puerto y la ciudad. Acceso al Castell, jardines botánicos y la Anella Olímpica. Una experiencia única y muy bien comunicada.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://telefericdemontjuic.cat" target="_blank">telefericdemontjuic.cat</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 934 41 48 20</span></div><div class="meta-row"><span class="mic">📍</span><span>Avda. Miramar, Montjuïc, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">9</div><div class="card-name">Free Tours por el Casco Histórico</div></div>
+          <div class="card-body"><p class="card-desc">Tours de propina voluntaria guiados por locales apasionados por el Barrio Gótico, el Born y el Raval con anécdotas históricas fascinantes. Salen varias veces al día desde la Plaça de Catalunya.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://freetoursbarcelona.com" target="_blank">freetoursbarcelona.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 931 88 89 42</span></div><div class="meta-row"><span class="mic">📍</span><span>Plaça de Catalunya, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge">10</div><div class="card-name">Shopping en El Born y Eixample</div></div>
+          <div class="card-body"><p class="card-desc">El Born concentra tiendas independientes de moda y diseño artesanal. El Eixample alberga las grandes firmas en el Passeig de Gràcia. El Carrer d'Enric Granados es el bulevar más agradable para pasear y comprar.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic">📞</span><span>+34 932 85 38 34</span></div><div class="meta-row"><span class="mic">📍</span><span>El Born & Passeig de Gràcia, Barcelona</span></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- BCN: GASTRONOMÍA -->
+  <div class="subsec bg-white" id="bcn-gas">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">03</div>
+        <div><span class="eyebrow">Barcelona · Alta Cocina</span><h2 class="sec-title">Gastronomía</h2><p class="sec-desc">De los mercados al menú degustación con estrella Michelin. Barcelona es una capital gastronómica mundial.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-bcn-gas" style="height:420px;width:100%;"></div></div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">1</div><div class="card-name">Botafumeiro – Mariscos de Galicia</div></div>
+          <div class="card-body"><p class="card-desc">Institución barcelonesa desde 1975. Uno de los mejores restaurantes de mariscos de España con bodega de más de 500 referencias. Percebes, nécoras, ostras y bogavante al estilo gallego son legendarios. Sin reserva, ir temprano.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://botafumeiro.es" target="_blank">botafumeiro.es</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 932 18 42 30</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ Gran de Gràcia, 81, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">2</div><div class="card-name">Disfrutar – Alta Cocina de Vanguardia</div></div>
+          <div class="card-body"><p class="card-desc">Top 10 en The World's 50 Best Restaurants. Menú degustación de temporada con técnicas innovadoras. Reserva con meses de antelación. Una ocasión especial que no se olvida. Dos estrellas Michelin.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://disfrutarbarcelona.com" target="_blank">disfrutarbarcelona.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 933 48 68 96</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ de Villarroel, 163, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">3</div><div class="card-name">Quimet & Quimet – Tapas de Culto</div></div>
+          <div class="card-body"><p class="card-desc">Taberna familiar de cuarta generación en el Poble Sec. Montaditos creativos y conservas gourmet. Local diminuto lleno de botellas. Se come de pie, el vino circula. Un lugar de culto para foodies. Solo al mediodía.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 934 42 31 42</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ del Poeta Cabanyes, 25, Poble Sec</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">4</div><div class="card-name">El Xampanyet – Cava y Tapas del Born</div></div>
+          <div class="card-body"><p class="card-desc">Bodega centenaria en el Born famosa por su cava artesanal de barril y tapas tradicionales. Las croquetas, los boquerones y el pan con tomate son legendarios. Ambiente bohemio. Ir temprano para conseguir sitio.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 933 19 70 03</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ de Montcada, 22, El Born, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">5</div><div class="card-name">Cervecería Catalana</div></div>
+          <div class="card-body"><p class="card-desc">Una de las cervecerías más populares del Eixample. Tapas elaboradas, raciones generosas y cerveza artesanal. Las croquetas y el pulpo son imprescindibles. Terraza en el Passeig de Gràcia. Sin reservas — ir temprano.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 932 16 03 68</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ de Mallorca, 236, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">6</div><div class="card-name">La Pepita – Vegetariano Creativo</div></div>
+          <div class="card-body"><p class="card-desc">Restaurante creativo 100% vegetal en el Raval con menús de temporada y productos ecológicos locales. Ambiente acogedor y decoración artística. Perfecto para quienes buscan una alternativa sabrosa. Reserva imprescindible.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://lapepita.net" target="_blank">lapepita.net</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 933 41 55 48</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ del Carme, 47, El Raval, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">7</div><div class="card-name">Paradiso – Coctelería de Autor</div></div>
+          <div class="card-body"><p class="card-desc">Elegida entre las mejores barras del mundo. Se entra empujando una nevera secreta en una heladería. Interior art deco con cócteles de autor. El espectáculo de la barra es tan bueno como las bebidas. Sin reservas.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://paradiso.cat" target="_blank">paradiso.cat</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 934 50 33 26</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ de Rera Palau, 4, El Born, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">8</div><div class="card-name">La Mar Salada – Frutos del Mar</div></div>
+          <div class="card-body"><p class="card-desc">Cocina marinera moderna en La Barceloneta con vistas al mar. Especialistas en arroces, fideuà y paella con producto del día. La terraza es uno de los mejores sitios de Barcelona para un almuerzo largo de domingo.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://lamarsalada.com" target="_blank">lamarsalada.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 932 21 21 27</span></div><div class="meta-row"><span class="mic blue">📍</span><span>Passeig de Joan de Borbó, 58, Barceloneta</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">9</div><div class="card-name">Monvinic – Wine Bar de Referencia</div></div>
+          <div class="card-body"><p class="card-desc">Uno de los mejores bares de vinos del mundo con más de 3.000 referencias. Los sumilleres guían por maridajes perfectos entre vinos del Penedès, Priorat y el mundo. Carta de tapas gourmet para acompañar.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://monvinic.com" target="_blank">monvinic.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 932 72 61 87</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ de la Diputació, 249, Barcelona</span></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="badge blue">10</div><div class="card-name">Bar Calders – Vermut y Cocina de Mercado</div></div>
+          <div class="card-body"><p class="card-desc">El epicentro del ritual del vermut dominical en Sant Antoni. Cocina de mercado de temporada con platos sencillos y sabrosos. La terraza en la Ronda de Sant Antoni es perfecta para el aperitivo largo. Sin reserva.</p>
+          <div class="card-meta"><div class="meta-row"><span class="mic blue">🌐</span><a class="mlink" href="https://barcelonaturisme.com" target="_blank">barcelonaturisme.com</a></div><div class="meta-row"><span class="mic blue">📞</span><span>+34 934 53 33 21</span></div><div class="meta-row"><span class="mic blue">📍</span><span>C/ del Parlament, 25, Sant Antoni, Barcelona</span></div></div></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content-bcn -->
+
+<!-- =====================================================================
+     TRANSPORTE
+===================================================================== -->
+<div id="content-tr">
+  <div style="padding:60px 0;">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num" style="color:#C4D5DC">TR</div>
+        <div><span class="eyebrow">Cómo moverse</span><h2 class="sec-title">Castelldefels ↔ Barcelona</h2><p class="sec-desc">Todos los medios de transporte con detalle de tiempos, precios y consejos prácticos para ir y volver.</p></div>
+      </div>
+      <div class="map-wrap"><div id="map-tr" style="height:420px;width:100%;"></div></div>
+      <div class="tgrid">
+
+        <div class="tcard">
+          <div class="tico">🚆</div>
+          <div class="ttitle">Tren Rodalies R2</div>
+          <div class="tbadge">~35 min · Recomendado</div>
+          <ul class="tsteps">
+            <li><span class="sn">1</span><span>Camina ~8 min desde los apartamentos hasta la <strong>Estació de Castelldefels</strong></span></li>
+            <li><span class="sn">2</span><span>Toma la línea <strong>R2 dirección Barcelona</strong> — trenes cada 20 min aprox.</span></li>
+            <li><span class="sn">3</span><span>Baja en <strong>Barcelona-Sants</strong> (estación principal + metro) o en <strong>Passeig de Gràcia</strong> (5 min a pie de Plaça Catalunya)</span></li>
+            <li><span class="sn">4</span><span>Billete sencillo ~2,90 € · T-Casual 10 viajes ~11,35 €</span></li>
+            <li><span class="sn">5</span><span>Compra en máquinas de la estación o en la app <strong>Rodalies de Catalunya</strong></span></li>
+          </ul>
+          <div class="tback">
+            <span class="tback-lbl">↩ Vuelta a Castelldefels</span>
+            <ul class="tsteps">
+              <li><span class="sn">→</span><span>Desde Passeig de Gràcia o Sants toma la R2 <strong>dirección Sant Vicenç de Calders</strong> y baja en Castelldefels</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tcard bus">
+          <div class="tico">🚌</div>
+          <div class="ttitle">Autobús</div>
+          <div class="tbadge">~55-65 min · Línea L95</div>
+          <ul class="tsteps">
+            <li><span class="sn">1</span><span>La línea <strong>L95</strong> conecta Castelldefels con El Prat / Cornellà (enlace Metro L1 y L5)</span></li>
+            <li><span class="sn">2</span><span>La línea <strong>L96</strong> cubre la zona costera hacia Gavà y Viladecans</span></li>
+            <li><span class="sn">3</span><span>Consulta horarios en <strong>tmb.cat</strong> o en la parada más cercana</span></li>
+            <li><span class="sn">4</span><span>La T-Casual del tren vale también para el bus metropolitano (tarifa integrada)</span></li>
+            <li><span class="sn">5</span><span>Ideal para moverse dentro de Castelldefels o combinar con el tren en El Prat</span></li>
+          </ul>
+          <div class="tback">
+            <span class="tback-lbl">↩ Vuelta a Castelldefels</span>
+            <ul class="tsteps">
+              <li><span class="sn">→</span><span>Mismo bus en la parada de regreso. Último servicio habitualmente ~23:00 h — consulta el horario exacto</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tcard car">
+          <div class="tico">🚗</div>
+          <div class="ttitle">Coche</div>
+          <div class="tbadge">~30 min · Autopista C-32</div>
+          <ul class="tsteps">
+            <li><span class="sn">1</span><span>Desde los apartamentos toma la <strong>C-32</strong> (autopista de peaje) dirección Barcelona Norte</span></li>
+            <li><span class="sn">2</span><span>Alternativa sin peaje: <strong>B-210</strong> carretera de la costa (más lenta en verano)</span></li>
+            <li><span class="sn">3</span><span>Peaje C-32 aprox. <strong>4-5 €</strong> por trayecto — consulta en autopistas.es</span></li>
+            <li><span class="sn">4</span><span><strong>Aparcamiento en Barcelona:</strong> muy limitado. Recomendamos periféria + metro (Zona Franca, Hospitalet)</span></li>
+            <li><span class="sn">5</span><span>En verano el tren es más rápido: evita la C-32 los viernes tarde y domingos noche</span></li>
+          </ul>
+          <div class="tback">
+            <span class="tback-lbl">↩ Vuelta a Castelldefels</span>
+            <ul class="tsteps">
+              <li><span class="sn">→</span><span>Toma la C-32 dirección Tarragona/Castelldefels. Evita salir de Barcelona entre las 19:00 y las 21:00 h en verano</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tcard taxi">
+          <div class="tico">🚕</div>
+          <div class="ttitle">Taxi / VTC</div>
+          <div class="tbadge">~30-45 min · 35-50 €</div>
+          <ul class="tsteps">
+            <li><span class="sn">1</span><span>El trayecto Castelldefels–Barcelona cuesta aprox. <strong>35-50 €</strong> según destino y hora</span></li>
+            <li><span class="sn">2</span><span>Apps: <strong>Cabify</strong>, <strong>Uber</strong> y <strong>FreeNow</strong> con precio fijo antes de salir</span></li>
+            <li><span class="sn">3</span><span>Taxi tradicional: reserva con antelación en verano · Local: <strong>+34 936 35 00 00</strong></span></li>
+            <li><span class="sn">4</span><span>Ideal para el día de llegada o salida con equipaje, o para volver tarde de noche</span></li>
+            <li><span class="sn">5</span><span>¿Necesitas ayuda para reservar? ¡Avísanos con antelación y te echamos una mano!</span></li>
+          </ul>
+          <div class="tback">
+            <span class="tback-lbl">↩ Vuelta a Castelldefels</span>
+            <ul class="tsteps">
+              <li><span class="sn">→</span><span>Reserva con hora programada desde Barcelona o el aeropuerto T1/T2 directamente hasta los apartamentos</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div><!-- /content-tr -->
+
+<!-- =====================================================================
+     NORMAS
+===================================================================== -->
+<div id="content-normas">
+  <div style="padding:60px 0;">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-num">N</div>
+        <div><span class="eyebrow">Para una estancia perfecta</span><h2 class="sec-title">Normas del Apartamento</h2><p class="sec-desc">Para garantizar el bienestar de todos los huéspedes y vecinos, te pedimos que sigas estas sencillas normas.</p></div>
+      </div>
+      <div class="rgrid">
+        <div class="ritem"><div class="ric">🎉</div><div class="rtxt"><strong>Sin fiestas ni eventos.</strong> Solo uso residencial; no se permiten celebraciones con personas ajenas a la reserva.</div></div>
+        <div class="ritem"><div class="ric">🔇</div><div class="rtxt"><strong>Silencio a partir de las 23:00 h.</strong> Terraza hasta las 23:00 h · Piscina hasta las 21:00 h.</div></div>
+        <div class="ritem"><div class="ric">🚬</div><div class="rtxt"><strong>Fumar solo en balcón/terraza.</strong> Usa el cenicero. Prohibido fumar dentro del apartamento.</div></div>
+        <div class="ritem"><div class="ric">🏖</div><div class="rtxt"><strong>Sacúdete la arena</strong> antes de ducharte. Hay duchas públicas cerca de la playa para evitar atascos en los desagües.</div></div>
+        <div class="ritem"><div class="ric">🗝</div><div class="rtxt"><strong>Cuida las llaves.</strong> Su pérdida conlleva un recargo de <strong>70 €</strong> para cubrir el coste de las copias.</div></div>
+        <div class="ritem"><div class="ric">🗑</div><div class="rtxt"><strong>Basura cada 2 días</strong> en los contenedores grises de la calle paralela. No dejes bolsas en la entrada del edificio.</div></div>
+        <div class="ritem"><div class="ric">❄️</div><div class="rtxt"><strong>Apaga el aire acondicionado</strong> al salir y mantén las ventanas cerradas mientras esté en funcionamiento.</div></div>
+        <div class="ritem"><div class="ric">🏊</div><div class="rtxt"><strong>Piscina abierta todo el año</strong>, de 9:00 h a 21:00 h. Solo para huéspedes registrados.</div></div>
+        <div class="ritem"><div class="ric">🛋</div><div class="rtxt"><strong>No muevas el mobiliario.</strong> Los daños a instalaciones o equipos serán cobrados al final de la estancia.</div></div>
+        <div class="ritem"><div class="ric">🧺</div><div class="rtxt"><strong>Toallas y ropa de cama</strong> solo para uso interior. No las saques del apartamento ni las uses en la playa.</div></div>
+        <div class="ritem"><div class="ric">👥</div><div class="rtxt"><strong>Solo personas de la reserva.</strong> El número no puede superar el indicado en la confirmación.</div></div>
+        <div class="ritem"><div class="ric">🔒</div><div class="rtxt"><strong>Cierra puertas y ventanas</strong> al salir. Los propietarios no se responsabilizan de pérdidas o robos de objetos personales.</div></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /content-normas -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="ftl">Apartamentos Elma</div>
+  <div class="fts">Castelldefels · Barcelona</div>
+  <div class="ftd"></div>
+  <p>Carrer de la Coruña, 26 · Castelldefels, Barcelona</p>
+  <p style="margin-top:7px;font-size:11px;opacity:.5">© 2026 Apartamentos Elma · Guía de Bienvenida</p>
+</footer>
+
+<script>
+var maps = {};
+var pendingMaps = {};
+
+/* ── Switch main city panel ── */
+function showCity(city) {
+  ['cdf','bcn','tr','normas'].forEach(function(c) {
+    document.getElementById('content-' + c).classList.remove('active');
+    document.getElementById('btn-' + c).classList.remove('active');
+  });
+  document.getElementById('content-' + city).classList.add('active');
+  document.getElementById('btn-' + city).classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  setTimeout(function(){ initVisibleMaps(); }, 300);
+}
+
+/* ── Switch secondary tab within a city ── */
+function showSub(city, sub, btn) {
+  showCityOnly(city);
+  var content = document.getElementById('content-' + city);
+  content.querySelectorAll('.subsec').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('#tabs-' + city + ' .sec-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById(city + '-' + sub).classList.add('active');
+  btn.classList.add('active');
+  setTimeout(function(){ initVisibleMaps(); }, 300);
+}
+
+function showCityOnly(city) {
+  ['cdf','bcn','tr','normas'].forEach(function(c) {
+    document.getElementById('content-' + c).classList.remove('active');
+    document.getElementById('btn-' + c).classList.remove('active');
+  });
+  document.getElementById('content-' + city).classList.add('active');
+  document.getElementById('btn-' + city).classList.add('active');
+}
+
+/* ── Map helpers ── */
+function makeIcon(color, label) {
+  return L.divIcon({
+    className: '',
+    html: '<div style="width:32px;height:32px;border-radius:50%;background:' + color + ';color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:900;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.85);">' + label + '</div>',
+    iconSize:[32,32], iconAnchor:[16,16], popupAnchor:[0,-16]
+  });
+}
+
+function buildMap(id, pts, color, center, zoom) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  // Destroy existing map instance so it reinitialises with correct dimensions
+  if (maps[id]) {
+    maps[id].remove();
+    delete maps[id];
+    el.innerHTML = '';
+  }
+  var m = L.map(id, {scrollWheelZoom:false}).setView(center, zoom||11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+    maxZoom:18
+  }).addTo(m);
+  pts.forEach(function(p){
+    L.marker([p.lat,p.lng],{icon:makeIcon(color,p.n)})
+      .addTo(m)
+      .bindPopup('<strong>' + p.n + '. ' + p.name + '</strong>');
+  });
+  maps[id] = m;
+  setTimeout(function(){ m.invalidateSize(); }, 200);
+}
+
+function initVisibleMaps() {
+  var cdfActive = document.getElementById('content-cdf').classList.contains('active');
+  var bcnActive = document.getElementById('content-bcn').classList.contains('active');
+  var trActive  = document.getElementById('content-tr').classList.contains('active');
+
+  if (cdfActive) {
+    var s = document.querySelector('#content-cdf .subsec.active');
+    if (s) {
+      if (s.id === 'cdf-atr') buildMap('map-cdf-atr', dCdfAtr, '#C4704A', CDF, 12);
+      if (s.id === 'cdf-act') buildMap('map-cdf-act', dCdfAct, '#C4704A', CDF, 12);
+      if (s.id === 'cdf-gas') buildMap('map-cdf-gas', dCdfGas, '#2B6B8A', [41.277,1.985], 13);
+    }
+  }
+  if (bcnActive) {
+    var s = document.querySelector('#content-bcn .subsec.active');
+    if (s) {
+      if (s.id === 'bcn-atr') buildMap('map-bcn-atr', dBcnAtr, '#C4704A', BCN, 12);
+      if (s.id === 'bcn-act') buildMap('map-bcn-act', dBcnAct, '#C4704A', BCN, 12);
+      if (s.id === 'bcn-gas') buildMap('map-bcn-gas', dBcnGas, '#2B6B8A', BCN, 12);
+    }
+  }
+  if (trActive) buildMap('map-tr', dTr, '#2B6B8A', MID, 10);
+
+  // Retry any pending maps
+  Object.keys(pendingMaps).forEach(function(id) {
+    var p = pendingMaps[id];
+    var el = document.getElementById(id);
+    if (el && el.offsetWidth > 0) {
+      delete pendingMaps[id];
+      buildMap(id, p.pts, p.color, p.center, p.zoom);
+    }
+  });
+
+  // Resize all existing maps
+  Object.values(maps).forEach(function(m){ m.invalidateSize(); });
+}
+
+/* ── Map data ── */
+var CDF = [41.280, 1.972], BCN = [41.390, 2.154], MID = [41.335, 2.050];
+
+var dCdfAtr = [
+  {n:1,lat:41.2789,lng:1.9831,name:"Castillo de Castelldefels"},
+  {n:2,lat:41.2750,lng:1.9766,name:"Canal Olímpic de Catalunya"},
+  {n:3,lat:41.2618,lng:1.9550,name:"Monestir Budista Sakya Tashi Ling"},
+  {n:4,lat:41.2580,lng:1.9400,name:"Parque Natural del Garraf"},
+  {n:5,lat:41.2698,lng:1.9460,name:"Port Ginesta"},
+  {n:6,lat:41.2800,lng:1.9870,name:"Paseo Marítimo y Playas"},
+  {n:7,lat:41.2820,lng:1.9750,name:"Llac de Castelldefels"},
+  {n:8,lat:41.3100,lng:2.0600,name:"Delta del Llobregat"},
+  {n:9,lat:41.2650,lng:1.9500,name:"Torre Barona"},
+  {n:10,lat:41.3120,lng:2.0650,name:"Centro Comercial Nervion Blau"}
+];
+var dCdfAct = [
+  {n:1,lat:41.2698,lng:1.9460,name:"CAIAC.CAT – Kayak y Paddle Surf"},
+  {n:2,lat:41.2755,lng:1.9838,name:"Escola Catalana de Surf"},
+  {n:3,lat:41.2630,lng:1.9780,name:"Kitesurf Playa Baixador"},
+  {n:4,lat:41.2900,lng:1.9650,name:"Senderismo por el Garraf"},
+  {n:5,lat:41.2698,lng:1.9462,name:"Excursiones en Barco a las Calas"},
+  {n:6,lat:41.2800,lng:1.9860,name:"Ciclismo Paseo Marítimo"},
+  {n:7,lat:41.2820,lng:1.9700,name:"Pádel y Tenis"},
+  {n:8,lat:41.3100,lng:2.0600,name:"Birdwatching Delta del Llobregat"},
+  {n:9,lat:41.2760,lng:1.9830,name:"Deportes de Playa"},
+  {n:10,lat:41.2745,lng:1.9840,name:"Windsurf y Vela Ligera"},
+  {n:11,lat:41.2750,lng:1.9766,name:"Canal Olímpic – Canoas"},
+  {n:12,lat:41.2752,lng:1.9768,name:"Canal Olímpic – Bicicletas"},
+  {n:13,lat:41.2748,lng:1.9764,name:"Canal Olímpic – Pitch & Putt"}
+];
+var dCdfGas = [
+  {n:1,lat:41.2762,lng:1.9843,name:"Chiringuito Ananda"},
+  {n:2,lat:41.2758,lng:1.9840,name:"Casanova Beach Club"},
+  {n:3,lat:41.2750,lng:1.9832,name:"Ushuaia – La Parrilla Argentina"},
+  {n:4,lat:41.2760,lng:1.9860,name:"Pizzas D'Herber"},
+  {n:5,lat:41.2755,lng:1.9850,name:"Fosbury Café"},
+  {n:6,lat:41.2748,lng:1.9828,name:"Olave"},
+  {n:7,lat:41.2790,lng:1.9820,name:"Pink Buddha"},
+  {n:8,lat:41.2830,lng:1.9780,name:"Café 2112"},
+  {n:9,lat:41.2770,lng:1.9845,name:"Tiburón Beach"},
+  {n:10,lat:41.2810,lng:1.9800,name:"Barba Rossa"}
+];
+var dBcnAtr = [
+  {n:1,lat:41.4036,lng:2.1744,name:"La Sagrada Família"},
+  {n:2,lat:41.4145,lng:2.1527,name:"Park Güell"},
+  {n:3,lat:41.3916,lng:2.1649,name:"Casa Batlló"},
+  {n:4,lat:41.3831,lng:2.1762,name:"Barrio Gótico"},
+  {n:5,lat:41.4236,lng:2.1648,name:"Bunkers del Carmel"},
+  {n:6,lat:41.3851,lng:2.1807,name:"Museu Picasso"},
+  {n:7,lat:41.3809,lng:2.1228,name:"Camp Nou"},
+  {n:8,lat:41.3876,lng:2.1756,name:"Palau de la Música"},
+  {n:9,lat:41.3635,lng:2.1607,name:"Montjuïc"},
+  {n:10,lat:41.3811,lng:2.1726,name:"Las Ramblas y Boqueria"},
+  {n:11,lat:41.3780,lng:2.1912,name:"La Barceloneta y Port Olímpic"},
+  {n:12,lat:41.3953,lng:2.1619,name:"La Pedrera – Casa Milà"},
+  {n:13,lat:41.3811,lng:2.1726,name:"Paseo por Las Ramblas"}
+];
+var dBcnAct = [
+  {n:1,lat:41.3874,lng:2.1686,name:"Bus Turístic"},
+  {n:2,lat:41.3780,lng:2.1912,name:"L'Aquàrium"},
+  {n:3,lat:41.3831,lng:2.1762,name:"Tours en Bicicleta"},
+  {n:4,lat:41.4010,lng:2.1560,name:"Flamenco"},
+  {n:5,lat:41.3828,lng:2.1977,name:"Velero al Atardecer"},
+  {n:6,lat:41.3809,lng:2.1228,name:"Partido FC Barcelona"},
+  {n:7,lat:41.3635,lng:2.1607,name:"Fundació Joan Miró"},
+  {n:8,lat:41.3635,lng:2.1620,name:"Teleférico de Montjuïc"},
+  {n:9,lat:41.3874,lng:2.1690,name:"Free Tours"},
+  {n:10,lat:41.3898,lng:2.1645,name:"Shopping El Born y Eixample"}
+];
+var dBcnGas = [
+  {n:1,lat:41.4043,lng:2.1571,name:"Botafumeiro"},
+  {n:2,lat:41.3784,lng:2.1488,name:"Disfrutar"},
+  {n:3,lat:41.3738,lng:2.1617,name:"Quimet & Quimet"},
+  {n:4,lat:41.3851,lng:2.1807,name:"El Xampanyet"},
+  {n:5,lat:41.3906,lng:2.1593,name:"Cervecería Catalana"},
+  {n:6,lat:41.3801,lng:2.1700,name:"La Pepita"},
+  {n:7,lat:41.3858,lng:2.1827,name:"Paradiso"},
+  {n:8,lat:41.3785,lng:2.1869,name:"La Mar Salada"},
+  {n:9,lat:41.3895,lng:2.1605,name:"Monvinic"},
+  {n:10,lat:41.3832,lng:2.1620,name:"Bar Calders"}
+];
+var dTr = [
+  {n:'🚆',lat:41.2862,lng:1.9753,name:"Estació Castelldefels (R2)"},
+  {n:'🚆',lat:41.3797,lng:2.1407,name:"Barcelona-Sants"},
+  {n:'🚆',lat:41.3916,lng:2.1649,name:"Passeig de Gràcia"},
+  {n:'🚌',lat:41.3874,lng:2.1686,name:"Plaça Catalunya (Bus/Metro)"}
+];
+
+document.addEventListener('DOMContentLoaded', function(){
+  // Only init the first visible map (cdf-atr) — others init when user navigates to them
+  setTimeout(function(){
+    buildMap('map-cdf-atr', dCdfAtr, '#C4704A', CDF, 12);
+  }, 400);
+});
+
+window.addEventListener('resize', function(){
+  Object.values(maps).forEach(function(m){ m.invalidateSize(); });
+});
+</script>
+</body>
+</html>
